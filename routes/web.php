@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Livewire\Admin;
 
 Route::view('/', 'welcome')->name('home');
 
@@ -11,6 +12,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::view('dashboard', 'admin.dashboard')->name('dashboard');
+    Route::livewire('room-types', Admin\RoomTypes\Index::class)->name('room-types.index');
 });
 
 
