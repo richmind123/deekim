@@ -1,6 +1,10 @@
 <div class="p-6">
     <h1 class="text-xl font-bold mb-4">Room Types</h1>
 
+    <flux:button href="{{ route('admin.room-types.create') }}" wire:navigate class="mb-4">
+        New Room Type
+    </flux:button>
+
     <table class="w-full text-left">
         <thead>
             <tr class="border-b border-neutral-200 dark:border-neutral-700">
