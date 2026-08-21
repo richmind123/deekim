@@ -12,6 +12,7 @@
                 <th class="py-2">Price</th>
                 <th class="py-2">Capacity</th>
                 <th class="py-2">Rooms</th>
+                <th class="py-2"></th>
             </tr>
         </thead>
         <tbody>
@@ -21,6 +22,11 @@
                     <td class="py-2">${{ $roomType->base_price }}</td>
                     <td class="py-2">{{ $roomType->capacity }}</td>
                     <td class="py-2">{{ $roomType->rooms()->count() }}</td>
+                    <td class="py-2">
+                        <flux:button href="{{ route('admin.room-types.edit', $roomType) }}" wire:navigate size="sm">
+                            Edit
+                        </flux:button>
+                    </td>
                 </tr>
             @endforeach
         </tbody>
