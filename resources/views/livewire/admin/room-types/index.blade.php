@@ -1,3 +1,4 @@
+@php use Illuminate\Support\Facades\Storage; @endphp
 <div class="p-6">
     <h1 class="text-xl font-bold mb-4">Room Types</h1>
 
@@ -8,6 +9,7 @@
     <table class="w-full text-left">
         <thead>
             <tr class="border-b border-neutral-200 dark:border-neutral-700">
+                <th class="py-2">Photo</th>
                 <th class="py-2">Name</th>
                 <th class="py-2">Price</th>
                 <th class="py-2">Capacity</th>
@@ -18,6 +20,12 @@
         <tbody>
             @foreach ($roomTypes as $roomType)
                 <tr class="border-b border-neutral-200 dark:border-neutral-700">
+                    <td class="py-2">
+                        @php $primaryImage = $roomType->images->firstWhere('is_primary', true); @endphp
+                        @if ($primaryImage)
+                            <img src="{{ Storage::disk('public')->url($primaryImage->path) }}" class="w-12 h-12 object-cover rounded" />
+                        @endif
+                    </td>
                     <td class="py-2">{{ $roomType->name }}</td>
                     <td class="py-2">${{ $roomType->base_price }}</td>
                     <td class="py-2">{{ $roomType->capacity }}</td>

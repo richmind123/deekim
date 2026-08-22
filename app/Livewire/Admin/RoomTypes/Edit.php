@@ -4,13 +4,17 @@ namespace App\Livewire\Admin\RoomTypes;
 
 use App\Models\RoomType;
 use Flux\Flux;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.app')]
 class Edit extends Component
 {
+    use WithFileUploads;
+
     public RoomType $roomType;
 
     public string $name = '';
@@ -22,6 +26,8 @@ class Edit extends Component
     public string $base_price = '';
 
     public int $capacity = 2;
+
+    public $photo;
 
     public function mount(RoomType $roomType): void
     {
@@ -38,6 +44,11 @@ class Edit extends Component
         $this->slug = Str::slug($this->name);
     }
 
+    public function updatedPhoto(): void
+    {
+        $this->resetErrorBag('photo');
+    }
+
     public function save(): void
     {
         $validated = $this->validate([
@@ -46,9 +57,22 @@ class Edit extends Component
             'description' => ['nullable', 'string'],
             'base_price' => ['required', 'numeric', 'min:0'],
             'capacity' => ['required', 'integer', 'min:1'],
+            'photo' => ['nullable', 'image', 'max:2048'],
         ]);
 
-        $this->roomType->update($validated);
+        $this->roomType->update(collect($validated)->except('photo')->toArray());
+
+        if ($this->photo) {
+            $path = Storage::disk('public')->putFile('room-types', $this->photo);
+
+            $this->roomType->images()->update(['is_primary' => false]);
+
+            $this->roomType->images()->create([
+                'path' => $path,
+                'sort_order' => 0,
+                'is_primary' => true,
+            ]);
+        }
 
         Flux::toast(variant: 'success', text: __('Room type updated.'));
 
@@ -57,6 +81,8 @@ class Edit extends Component
 
     public function render()
     {
-        return view('livewire.admin.room-types.edit');
+        return view('livewire.admin.room-types.edit', [
+            'existingImage' => $this->roomType->images()->where('is_primary', true)->first(),
+        ]);
     }
 }

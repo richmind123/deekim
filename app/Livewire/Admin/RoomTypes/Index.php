@@ -12,7 +12,7 @@ class Index extends Component
     public function render()
     {
         return view('livewire.admin.room-types.index', [
-            'roomTypes' => RoomType::latest()->get(),
+            'roomTypes' => RoomType::with('images')->latest()->get(),
         ]);
     }
 }
