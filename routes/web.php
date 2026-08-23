@@ -2,8 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Admin;
+use App\Livewire\Public;
 
-Route::view('/', 'welcome')->name('home');
+Route::livewire('/', Public\Home::class)->name('home');
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
