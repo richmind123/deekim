@@ -11,6 +11,7 @@ Route::livewire('rooms/{roomType:slug}', Public\RoomShow::class)->name('rooms.sh
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
+    Route::livewire('booking/checkout', \App\Livewire\Booking\Checkout::class)->name('booking.checkout');
 });
 
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {

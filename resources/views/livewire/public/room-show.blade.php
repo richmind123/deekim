@@ -28,9 +28,13 @@
         @if ($searched)
             <div class="mt-4">
                 @if ($availableRooms > 0)
-                    <p class="text-green-600 dark:text-green-400">
+                    <p class="text-green-600 dark:text-green-400 mb-3">
                         {{ $availableRooms }} room{{ $availableRooms > 1 ? 's' : '' }} available for these dates.
                     </p>
+
+                    <flux:button wire:click="bookNow" variant="primary">
+                        Book Now
+                    </flux:button>
                 @else
                     <p class="text-red-600 dark:text-red-400">
                         Sorry, no rooms available for these dates.

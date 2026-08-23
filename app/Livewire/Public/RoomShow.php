@@ -55,6 +55,16 @@ class RoomShow extends Component
         $this->searched = true;
     }
 
+    public function bookNow(): void
+    {
+        $this->redirectRoute('booking.checkout', [
+            'roomType' => $this->roomType->slug,
+            'check_in' => $this->check_in,
+            'check_out' => $this->check_out,
+            'guests' => $this->guests,
+        ]);
+    }
+
     public function render()
     {
         return view('livewire.public.room-show');
