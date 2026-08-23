@@ -9,4 +9,14 @@
         <p>Nights: {{ $this->nights() }}</p>
         <p class="font-semibold mt-2">Total: ${{ number_format($this->totalPrice(), 2) }}</p>
     </div>
+
+    <form wire:submit="confirmBooking">
+        @error('dates')
+            <p class="text-red-600 dark:text-red-400 mb-4">{{ $message }}</p>
+        @enderror
+
+        <flux:button type="submit" variant="primary" wire:loading.attr="disabled" wire:target="confirmBooking">
+            Confirm Booking
+        </flux:button>
+    </form>
 </div>
