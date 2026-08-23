@@ -5,6 +5,8 @@ use App\Livewire\Admin;
 use App\Livewire\Public;
 
 Route::livewire('/', Public\Home::class)->name('home');
+Route::livewire('rooms', Public\RoomIndex::class)->name('rooms.index');
+Route::livewire('rooms/{roomType:slug}', Public\RoomShow::class)->name('rooms.show');
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
