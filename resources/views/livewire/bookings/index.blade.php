@@ -7,7 +7,11 @@
             <p class="font-semibold">{{ $booking->roomType->name }}</p>
             <p>{{ $booking->check_in->format('M j, Y') }} &rarr; {{ $booking->check_out->format('M j, Y') }}</p>
             <p>Reference: {{ $booking->reference }}</p>
-            <p>Status: {{ ucfirst($booking->status) }}</p>
+            <p class="mb-3">Status: {{ ucfirst($booking->status) }}</p>
+
+            <flux:button wire:click="cancel({{ $booking->id }})" wire:confirm="Are you sure you want to cancel this booking?" size="sm">
+                Cancel Booking
+            </flux:button>
         </div>
     @empty
         <p class="text-sm mb-6">No upcoming bookings.</p>
