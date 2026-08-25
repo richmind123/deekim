@@ -17,7 +17,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::view('dashboard', 'admin.dashboard')->name('dashboard');
+    Route::livewire('dashboard', Admin\Dashboard::class)->name('dashboard');
     Route::livewire('room-types', Admin\RoomTypes\Index::class)->name('room-types.index');
     Route::livewire('room-types/create', Admin\RoomTypes\Create::class)->name('room-types.create');
     Route::livewire('room-types/{roomType}/edit', Admin\RoomTypes\Edit::class)->name('room-types.edit');
