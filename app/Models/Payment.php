@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['booking_id', 'amount', 'method', 'status', 'transaction_ref', 'paid_at'])]
+#[Fillable(['booking_id', 'amount', 'method', 'status', 'transaction_ref', 'paid_at', 'payment_method_id', 'proof_path'])]
 class Payment extends Model
 {
     /**

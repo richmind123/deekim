@@ -3,19 +3,25 @@
 namespace App\Livewire\Booking;
 
 use App\Models\Booking;
+use App\Models\PaymentMethod;
 use App\Models\RoomType;
+use App\Notifications\BookingConfirmed;
 use Flux\Flux;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.public')]
 class Checkout extends Component
 {
+    use WithFileUploads;
+
     public RoomType $roomType;
 
     public string $check_in;
@@ -23,6 +29,10 @@ class Checkout extends Component
     public string $check_out;
 
     public int $guests;
+
+    public ?int $paymentMethodId = null;
+
+    public $proof;
 
     public function mount(): void
     {
@@ -43,8 +53,29 @@ class Checkout extends Component
         return $this->nights() * $this->roomType->base_price;
     }
 
+    public function paymentMethods()
+    {
+        return PaymentMethod::where('is_active', true)->get();
+    }
+
+    public function selectedMethod(): ?PaymentMethod
+    {
+        return PaymentMethod::find($this->paymentMethodId);
+    }
+
+    public function updatedPaymentMethodId(): void
+    {
+        $this->resetErrorBag('proof');
+        $this->proof = null;
+    }
+
     public function confirmBooking(): void
     {
+        $this->validate([
+            'paymentMethodId' => ['required', 'exists:payment_methods,id'],
+            'proof' => [$this->selectedMethod()?->requires_proof ? 'required' : 'nullable', 'image', 'max:2048'],
+        ]);
+
         $booking = DB::transaction(function () {
             $overlapping = Booking::where('room_type_id', $this->roomType->id)
                 ->where('status', '!=', 'cancelled')
@@ -59,6 +90,8 @@ class Checkout extends Component
                 ]);
             }
 
+            $method = $this->selectedMethod();
+
             $booking = Booking::create([
                 'user_id' => Auth::id(),
                 'room_type_id' => $this->roomType->id,
@@ -66,26 +99,39 @@ class Checkout extends Component
                 'check_in' => $this->check_in,
                 'check_out' => $this->check_out,
                 'guests' => $this->guests,
-                'status' => 'confirmed',
+                'status' => $method->requires_proof ? 'pending_payment' : 'confirmed',
                 'total_price' => $this->totalPrice(),
             ]);
 
+            $proofPath = null;
+            if ($this->proof) {
+                $proofPath = Storage::disk('public')->putFile('payment-proofs', $this->proof);
+            }
+
             $booking->payment()->create([
                 'amount' => $booking->total_price,
+                'payment_method_id' => $method->id,
+                'method' => $method->name,
+                'proof_path' => $proofPath,
             ]);
 
             return $booking;
         });
 
-        $booking->user->notify(new \App\Notifications\BookingConfirmed($booking));
-
-        Flux::toast(variant: 'success', text: __('Booking confirmed!'));
+        if ($booking->status === 'confirmed') {
+            $booking->user->notify(new BookingConfirmed($booking));
+            Flux::toast(variant: 'success', text: __('Booking confirmed!'));
+        } else {
+            Flux::toast(variant: 'success', text: __('Booking received — awaiting payment verification.'));
+        }
 
         $this->redirectRoute('booking.confirmation', ['booking' => $booking->id], navigate: true);
     }
 
     public function render()
     {
-        return view('livewire.booking.checkout');
+        return view('livewire.booking.checkout', [
+            'paymentMethods' => $this->paymentMethods(),
+        ]);
     }
 }
