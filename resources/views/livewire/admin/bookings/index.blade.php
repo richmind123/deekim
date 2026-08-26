@@ -1,3 +1,4 @@
+@php use Illuminate\Support\Facades\Storage; @endphp
 <div class="space-y-6">
     <flux:heading size="xl">Bookings</flux:heading>
 
@@ -41,15 +42,29 @@
                         </flux:badge>
                     </flux:table.cell>
                     <flux:table.cell>
-                        @if ($booking->status !== 'confirmed')
-                            <flux:button size="sm" variant="primary" wire:click="confirm({{ $booking->id }})" wire:loading.attr="disabled" wire:target="confirm({{ $booking->id }})">
-                                Confirm
+                        @if ($booking->status === 'pending_payment')
+                            @if ($booking->payment?->proof_path)
+                                <flux:button size="sm" href="{{ Storage::disk('public')->url($booking->payment->proof_path) }}" target="_blank">
+                                    View Proof
+                                </flux:button>
+                            @endif
+                            <flux:button size="sm" variant="primary" wire:click="approvePayment({{ $booking->id }})" wire:loading.attr="disabled" wire:target="approvePayment({{ $booking->id }})" wire:confirm="Approve this payment? The guest will be notified.">
+                                Approve
                             </flux:button>
-                        @endif
-                        @if ($booking->status !== 'cancelled')
-                            <flux:button size="sm" variant="danger" wire:click="cancel({{ $booking->id }})" wire:loading.attr="disabled" wire:target="cancel({{ $booking->id }})" wire:confirm="Cancel this booking?">
-                                Cancel
+                            <flux:button size="sm" variant="danger" wire:click="rejectPayment({{ $booking->id }})" wire:loading.attr="disabled" wire:target="rejectPayment({{ $booking->id }})" wire:confirm="Reject this payment? The booking will be cancelled.">
+                                Reject
                             </flux:button>
+                        @else
+                            @if ($booking->status !== 'confirmed')
+                                <flux:button size="sm" variant="primary" wire:click="confirm({{ $booking->id }})" wire:loading.attr="disabled" wire:target="confirm({{ $booking->id }})">
+                                    Confirm
+                                </flux:button>
+                            @endif
+                            @if ($booking->status !== 'cancelled')
+                                <flux:button size="sm" variant="danger" wire:click="cancel({{ $booking->id }})" wire:loading.attr="disabled" wire:target="cancel({{ $booking->id }})" wire:confirm="Cancel this booking?">
+                                    Cancel
+                                </flux:button>
+                            @endif
                         @endif
                     </flux:table.cell>
                 </flux:table.row>
