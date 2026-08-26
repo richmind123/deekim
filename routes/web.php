@@ -26,6 +26,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::livewire('rooms/{room}/edit', Admin\Rooms\Edit::class)->name('rooms.edit');
     Route::livewire('bookings', Admin\Bookings\Index::class)->name('bookings.index');
     Route::livewire('users', Admin\Users\Index::class)->name('users.index');
+    Route::livewire('payment-methods', Admin\PaymentMethods\Index::class)->name('payment-methods.index');
+    Route::livewire('payment-methods/create', Admin\PaymentMethods\Create::class)->name('payment-methods.create');
+    Route::livewire('payment-methods/{paymentMethod}/edit', Admin\PaymentMethods\Edit::class)->name('payment-methods.edit');
 });
 
 
