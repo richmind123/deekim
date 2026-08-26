@@ -24,6 +24,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::livewire('rooms', Admin\Rooms\Index::class)->name('rooms.index');
     Route::livewire('rooms/create', Admin\Rooms\Create::class)->name('rooms.create');
     Route::livewire('rooms/{room}/edit', Admin\Rooms\Edit::class)->name('rooms.edit');
+    Route::livewire('bookings', Admin\Bookings\Index::class)->name('bookings.index');
 });
 
 
