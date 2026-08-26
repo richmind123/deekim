@@ -71,6 +71,8 @@ class Checkout extends Component
             ]);
         });
 
+        $booking->user->notify(new \App\Notifications\BookingConfirmed($booking));
+
         Flux::toast(variant: 'success', text: __('Booking confirmed!'));
 
         $this->redirectRoute('booking.confirmation', ['booking' => $booking->id], navigate: true);
