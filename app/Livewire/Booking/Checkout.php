@@ -59,7 +59,7 @@ class Checkout extends Component
                 ]);
             }
 
-            return Booking::create([
+            $booking = Booking::create([
                 'user_id' => Auth::id(),
                 'room_type_id' => $this->roomType->id,
                 'reference' => 'DKM-' . strtoupper(Str::random(6)),
@@ -69,6 +69,12 @@ class Checkout extends Component
                 'status' => 'confirmed',
                 'total_price' => $this->totalPrice(),
             ]);
+
+            $booking->payment()->create([
+                'amount' => $booking->total_price,
+            ]);
+
+            return $booking;
         });
 
         $booking->user->notify(new \App\Notifications\BookingConfirmed($booking));
