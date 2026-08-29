@@ -4,10 +4,10 @@ namespace App\Livewire\Admin\Bookings;
 
 use App\Models\Booking;
 use App\Notifications\BookingConfirmed;
+use Flux\Flux;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Flux\Flux;
 
 class Index extends Component
 {
@@ -22,9 +22,12 @@ class Index extends Component
     #[Url]
     public string $to = '';
 
+    #[Url]
+    public bool $staleOnly = false;
+
     public function updated($property)
     {
-        if (in_array($property, ['status', 'from', 'to'])) {
+        if (in_array($property, ['status', 'from', 'to', 'staleOnly'])) {
             $this->resetPage();
         }
     }
@@ -64,12 +67,24 @@ class Index extends Component
         Flux::toast(variant: 'danger', text: __('Payment rejected — booking cancelled.'));
     }
 
+    public function isStale(Booking $booking): bool
+    {
+        return $booking->status === 'pending_payment'
+            && $booking->created_at->lt(now()->subHours(6));
+    }
+
     public function render()
     {
         $bookings = Booking::with(['user', 'roomType', 'payment'])
             ->when($this->status, fn($query) => $query->where('status', $this->status))
             ->when($this->from, fn($query) => $query->whereDate('check_in', '>=', $this->from))
             ->when($this->to, fn($query) => $query->whereDate('check_in', '<=', $this->to))
+            ->when(
+                $this->staleOnly,
+                fn($query) => $query
+                    ->where('status', 'pending_payment')
+                    ->where('created_at', '<', now()->subHours(6))
+            )
             ->latest('check_in')
             ->paginate(15);
 

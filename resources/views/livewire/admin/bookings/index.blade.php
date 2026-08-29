@@ -11,6 +11,7 @@
 
         <flux:input type="date" wire:model.live="from" label="Check-in from" />
         <flux:input type="date" wire:model.live="to" label="Check-in to" />
+        <flux:checkbox wire:model.live="staleOnly" label="Show stale pending payments only (6+ hours)" />
     </div>
 
     <flux:table>
@@ -37,9 +38,14 @@
                     <flux:table.cell>{{ $booking->nights() }}</flux:table.cell>
                     <flux:table.cell>${{ number_format($booking->total_price, 2) }}</flux:table.cell>
                     <flux:table.cell>
-                        <flux:badge :color="$booking->status === 'confirmed' ? 'green' : 'red'">
+                        <flux:badge :color="$booking->status === 'confirmed' ? 'green' : ($booking->status === 'pending_payment' ? 'amber' : 'red')">
                             {{ ucfirst($booking->status) }}
                         </flux:badge>
+                        @if ($booking->status === 'pending_payment')
+                            <span class="text-xs {{ $this->isStale($booking) ? 'text-red-600 dark:text-red-400 font-semibold' : 'text-neutral-500' }}">
+                                ({{ $booking->created_at->diffForHumans(null, true) }}{{ $this->isStale($booking) ? ' — overdue' : '' }})
+                            </span>
+                        @endif
                     </flux:table.cell>
                     <flux:table.cell>
                         @if ($booking->status === 'pending_payment')
