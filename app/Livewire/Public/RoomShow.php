@@ -47,8 +47,8 @@ class RoomShow extends Component
 
         $overlapping = Booking::where('room_type_id', $this->roomType->id)
             ->where('status', '!=', 'cancelled')
-            ->where('check_in', '<', $this->check_out)
-            ->where('check_out', '>', $this->check_in)
+            ->whereDate('check_in', '<', $this->check_out)
+            ->whereDate('check_out', '>', $this->check_in)
             ->count();
 
         $this->availableRooms = $this->roomType->rooms()->count() - $overlapping;
